@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 /**
  * Reads .env and generates config.js for the browser.
- * Run before serving: node inject-config.js
+ * Run before serving: node scripts/inject-config.js
  */
 const fs = require('fs');
 const path = require('path');
 
-const envPath = path.join(__dirname, '.env');
-const configPath = path.join(__dirname, 'config.js');
+const rootDir = path.join(__dirname, '..');
+const envPath = path.join(rootDir, '.env');
+const configPath = path.join(rootDir, 'public', 'config.js');
 
 if (!fs.existsSync(envPath)) {
   console.error('.env file not found. Copy .env.example to .env and add your agent ID.');
@@ -39,5 +40,9 @@ window.CLINIC_ADDRESS = '${clinicAddress.replace(/'/g, "\\'")}';
 window.CLINIC_PHONE = '${clinicPhone.replace(/'/g, "\\'")}';
 `;
 
+const publicDir = path.dirname(configPath);
+if (!fs.existsSync(publicDir)) {
+  fs.mkdirSync(publicDir, { recursive: true });
+}
 fs.writeFileSync(configPath, config);
-console.log('config.js generated from .env');
+console.log('config.js generated in public/');

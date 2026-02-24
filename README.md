@@ -4,8 +4,8 @@ A patient portal for fertility clinics, powered by the [ElevenLabs Conversationa
 
 ## Features
 
-- **Patient portal** (`eve-agent.html`) – Welcome screen, dashboard, and Eve voice assistant
-- **Clinic dashboard** (`clinic-dashboard.html`) – Call history, transcripts, and appointment tracking
+- **Patient portal** (`public/index.html`) – Welcome screen, dashboard, and Eve voice assistant
+- **Clinic dashboard** (`public/dashboard.html`) – Call history, transcripts, and appointment tracking
 - **Scheduling integrations** – Calendly links for ultrasounds, lab work, prenatal checkups, and doctor consultations
 - **Call tracking** – Transcripts, scheduled appointments, and staff messages stored in localStorage and synced to the dashboard
 
@@ -44,31 +44,41 @@ npm install
 npm run serve
 ```
 
-This generates `config.js` from `.env` and serves the app at `http://localhost:3000`.
+This generates `public/config.js` from `.env` and serves the app at `http://localhost:3000`.
+
+- **Patient portal:** http://localhost:3000/ (or /index.html)
+- **Clinic dashboard:** http://localhost:3000/dashboard.html
 
 ### Manual build
 
 To generate `config.js` without serving:
 
 ```bash
-node inject-config.js
+npm run build
 ```
 
 ## Project structure
 
 ```
 Eve/
-├── eve-agent.html      # Patient portal (main view)
-├── clinic-dashboard.html  # Staff call history dashboard
-├── inject-config.js    # Build script: .env → config.js
-├── config.js           # Generated; loaded by HTML (do not commit)
-├── .env.example        # Template for .env
-├── .env                # Your secrets (do not commit)
-└── package.json
+├── public/                 # Static assets (served root)
+│   ├── index.html          # Patient portal (main view)
+│   ├── dashboard.html      # Clinic staff dashboard
+│   ├── config.js           # Generated from .env (do not commit)
+│   └── assets/
+│       └── images/         # Logo, sidebar, etc.
+│           ├── logo.png
+│           └── sidebar.png
+├── scripts/
+│   └── inject-config.js    # Build: .env → public/config.js
+├── .env.example            # Template for .env
+├── .env                    # Your secrets (do not commit)
+├── package.json
+└── README.md
 ```
 
 ## Notes
 
 - `config.js` is generated from `.env` and contains your agent ID. It is gitignored.
 - The clinic dashboard uses `localStorage` and `BroadcastChannel` to stay in sync with the patient portal when both are open.
-- Replace the logo and sidebar images with your clinic’s branding.
+- Replace `public/assets/images/logo.png` and `public/assets/images/sidebar.png` with your clinic’s branding.

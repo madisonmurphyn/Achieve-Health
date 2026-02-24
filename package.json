@@ -1,7 +1,7 @@
 {
   "name": "eve-agent",
   "scripts": {
-    "build": "node inject-config.js",
-    "serve": "node inject-config.js && npx serve . -l 3000"
+    "build": "node scripts/inject-config.js",
+    "serve": "npm run build && npx serve public -l 3000"
   }
 }
