@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eve - Patient Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* ElevenLabs brand palette - https://11labs-guides-dev.a17.dev/ */
+            --white: #FFFFFF;
+            --n50: #F2F2F2;
+            --n100: #E5E5E5;
+            --n200: #DCDCDC;
+            --n300: #BDBDBD;
+            --n400: #949494;
+            --n500: #767676;
+            --n600: #6E6E6E;
+            --n700: #525252;
+            --n800: #464646;
+            --n900: #3D3D3D;
+            --n950: #292929;
+            /* Warm magenta from side image gradient */
+            --magenta: #B85A8A;
+            --magenta-hover: #A04A78;
+            --magenta-soft: #F8E8F2;
+            --magenta-tint: #FCF2F8;
+            /* Semantic */
+            --cream: var(--n50);
+            --warm-white: var(--white);
+            --border: var(--n200);
+            --text: var(--n950);
+            --text-muted: var(--n600);
+            --accent: var(--magenta);
+            --accent-hover: var(--magenta-hover);
+            --accent-soft: var(--magenta-soft);
+            --blush: var(--magenta-tint);
+            --success: #059661;
+            --card-shadow: 0 2px 8px rgba(41, 41, 41, 0.04);
+            --card-shadow-hover: 0 4px 16px rgba(41, 41, 41, 0.08);
+            /* Radius tokens - ElevenLabs */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 20px;
+            --radius-2xl: 28px;
+            --radius-full: 999px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, Arial, sans-serif;
+            font-size: 15px;
+            font-weight: 400;
+            background: var(--cream);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+            letter-spacing: 0.01em;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(184, 90, 138, 0.06) 0%, transparent 50%),
+                        radial-gradient(ellipse 60% 40% at 100% 100%, rgba(212, 144, 112, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ─── Portal header bar ─── */
+        .portal-topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1100;
+            background: var(--warm-white);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            min-height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .portal-topbar .logo {
+            display: flex;
+            align-items: center;
+        }
+        .portal-topbar .logo-img {
+            height: 44px;
+            width: auto;
+            max-height: 48px;
+            display: block;
+            object-fit: contain;
+        }
+        .portal-topbar .topbar-widgets {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .portal-topbar nav {
+            display: flex;
+            gap: 18px;
+        }
+        .portal-topbar nav a {
+            font-size: 15px;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: var(--radius-full);
+            background: var(--cream);
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+        .portal-topbar nav a:hover { color: var(--accent); border-color: var(--accent-soft); background: var(--accent-soft); }
+        .portal-topbar nav a.active { color: var(--accent); background: var(--accent-soft); border-color: var(--accent); }
+
+        /* ─── Main layout ─── */
+        /* Main content left, sidebar right - no overlap, sidebar expands with screen */
+        body.portal-active { overflow: hidden; }
+        .portal-main {
+            position: fixed;
+            top: 64px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .portal-main .main-content {
+            position: absolute;
+            top: 0;
+            left: 30px;
+            right: calc(50vw + 40px);
+            bottom: 0;
+            min-width: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 32px 24px 80px 0;
+            z-index: 1;
+            scrollbar-width: thin;
+            scrollbar-color: transparent transparent;
+        }
+        .portal-main .main-content.is-scrolling {
+            scrollbar-color: var(--n300) transparent;
+        }
+        .portal-main .main-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        .portal-main .main-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .portal-main .main-content::-webkit-scrollbar-thumb {
+            background: transparent;
+            border-radius: 4px;
+        }
+        .portal-main .main-content.is-scrolling::-webkit-scrollbar-thumb {
+            background: var(--n300);
+        }
+        /* When portal-main is scroll container (≤1100px) */
+        .portal-main.portal-scrolling {
+            scrollbar-color: var(--n300) transparent;
+        }
+        .portal-main::-webkit-scrollbar { width: 8px; }
+        .portal-main::-webkit-scrollbar-track { background: transparent; }
+        .portal-main::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px; }
+        .portal-main.portal-scrolling::-webkit-scrollbar-thumb { background: var(--n300); }
+        /* Larger than 13" Mac (≥1440px): 60px gap */
+        @media (min-width: 1440px) {
+            .portal-main .main-content { right: calc(50vw + 32px); }
+        }
+        /* Larger screens: 60px gap with increased left spacing */
+        @media (min-width: 1680px) {
+            .portal-main .main-content {
+                left: 60px;
+                right: calc(50vw + 32px);
+                padding: 32px 24px 80px 32px;
+            }
+        }
+        /* Very wide screens: allow content to expand (enough room for min 900px) */
+        @media (min-width: 1920px) {
+            .portal-main .main-content {
+                min-width: 900px;
+            }
+        }
+        /* Sidebar: max 50% of screen, 40px gap from content */
+        .portal-main .main-sidebar {
+            position: fixed;
+            top: 64px;
+            left: 50vw;
+            right: 0;
+            bottom: 0;
+            width: 50vw;
+            max-width: 50vw;
+            height: calc(100vh - 64px);
+            overflow: hidden;
+            z-index: 0;
+        }
+        /* Laptop view: sidebar 40% of screen, 20px gap (covers typical laptops up to 1920px) */
+        @media (min-width: 769px) and (max-width: 1920px) {
+            .portal-main .main-content {
+                right: calc(40vw + 10px);
+            }
+            .portal-main .main-sidebar {
+                left: 60vw;
+                width: 40vw;
+                max-width: 40vw;
+            }
+        }
+        .portal-main .main-sidebar img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: 25% 75%;
+            border-radius: 0 0 0 var(--radius-lg);
+        }
+
+        .dashboard-welcome {
+            margin-bottom: 28px;
+        }
+        .dashboard-welcome .greeting {
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 24px;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+        .dashboard-welcome .date {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Dashboard cards grid - appointments can expand when content area is wider */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: minmax(200px, 400px) 1fr;
+            gap: 20px;
+        }
+        .dashboard-card {
+            background: linear-gradient(135deg, rgba(252, 242, 248, 0.8) 0%, var(--warm-white) 40%, rgba(255, 247, 237, 0.5) 100%);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            transition: box-shadow 0.25s ease;
+        }
+        .dashboard-card:hover { box-shadow: var(--card-shadow-hover); }
+        .dashboard-card h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        .dashboard-card p {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+        .dashboard-card .card-action {
+            display: inline-block;
+            margin-top: 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .dashboard-card .card-action:hover { text-decoration: underline; }
+
+        .office-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+        .office-info-grid .office-details { margin: 0; }
+        .office-info-grid .office-details p { margin-bottom: 8px; }
+        .office-info-grid .office-details p:last-of-type { margin-bottom: 0; }
+        .office-map {
+            width: 100%;
+            height: 240px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        .office-map iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .office-map-link {
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 13px;
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .office-map-link:hover { text-decoration: underline; }
+
+        #transcript-panel {
+            margin-top: 24px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(252, 242, 248, 0.6) 0%, rgba(255, 247, 237, 0.4) 100%);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
+            border-radius: var(--radius-lg);
+            display: none;
+        }
+        #transcript-panel.visible { display: block; }
+        #transcript-panel h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+        }
+
+        .transcript-entry {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .transcript-entry:last-child { border-bottom: none; }
+        .transcript-entry .role {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            color: var(--text-muted);
+        }
+        .transcript-entry .role.user { color: var(--accent); }
+        .transcript-entry .role.agent { color: var(--success); }
+        .transcript-entry .text { color: var(--text); }
+
+        .link-toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translate(-50%, 20px);
+            background: var(--warm-white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 18px 22px;
+            box-shadow: var(--card-shadow-hover);
+            z-index: 9999;
+            max-width: 340px;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.35s ease;
+            pointer-events: none;
+        }
+        .link-toast.show {
+            transform: translate(-50%, 0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .link-toast .toast-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+        .link-toast .toast-title { font-size: 15px; font-weight: 500; margin-bottom: 10px; color: var(--text); }
+        .link-toast a {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 500;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            background: var(--accent);
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .link-toast a:hover { background: var(--accent-hover); }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text);
+            margin: 36px 0 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 20px;
+        }
+        .service-tag:nth-child(1) { grid-column: 1 / 3; }
+        .service-tag:nth-child(2) { grid-column: 3 / 5; }
+        .service-tag:nth-child(3) { grid-column: 5 / 7; }
+        .service-tag:nth-child(4) { grid-column: 2 / 4; }
+        .service-tag:nth-child(5) { grid-column: 4 / 6; }
+        .service-tag {
+            display: block;
+            padding: 12px 16px;
+            background: var(--accent);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            color: #FFFFFF;
+            text-align: center;
+            text-decoration: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .service-tag:hover {
+            border-color: var(--accent);
+            box-shadow: var(--card-shadow);
+        }
+        .resources-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .resource-item {
+            padding: 16px 20px;
+            background: var(--warm-white);
+            border: 1px solid var(--accent);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            color: var(--text);
+        }
+        .resource-item strong { color: var(--text); display: block; margin-bottom: 4px; }
+        .resource-item span { color: var(--text-muted); }
+        .office-info {
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(252, 242, 248, 0.6) 0%, rgba(255, 247, 237, 0.4) 100%);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
+            border-radius: var(--radius-lg);
+            font-size: 14px;
+        }
+        .office-info p { margin-bottom: 8px; }
+        .office-info p:last-child { margin-bottom: 0; }
+
+        /* Laptop view: Upcoming Appointments narrower than Office Information */
+        @media (min-width: 769px) and (max-width: 1920px) {
+            .dashboard-grid {
+                grid-template-columns: minmax(180px, 220px) 1fr;
+            }
+        }
+        @media (max-width: 768px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .dashboard-grid .eve-card { grid-column: span 1; }
+            .office-info-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 1100px) {
+            .portal-main {
+                overflow-y: auto;
+                padding: 32px 24px 80px;
+                scrollbar-width: thin;
+                scrollbar-color: transparent transparent;
+            }
+            .portal-main .main-content {
+                position: static;
+                width: 100%;
+                max-width: none;
+                min-width: 0;
+                left: auto;
+                right: auto;
+                padding: 0;
+            }
+            .portal-main .main-sidebar {
+                position: static;
+                width: 100%;
+                max-width: 560px;
+                left: auto;
+                right: auto;
+                height: 400px;
+                margin: 40px 0 0;
+            }
+            .portal-main .main-sidebar img {
+                height: 100%;
+            }
+        }
+        @media (max-width: 600px) {
+            .portal-main .main-content { padding: 0 16px; }
+            .portal-topbar nav { display: none; }
+        }
+
+        /* Welcome / Sign-in screen */
+        .welcome-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(61, 53, 48, 0.25);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 24px;
+        }
+        .welcome-overlay.hidden { display: none !important; }
+        .welcome-card {
+            background: var(--warm-white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(61, 53, 48, 0.08), 0 2px 8px rgba(61, 53, 48, 0.04);
+        }
+        .welcome-card h2 {
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 22px;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        .welcome-card .subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+        .name-input-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .name-input {
+            font-size: 15px;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: var(--white);
+            outline: none;
+            color: var(--text);
+            transition: border-color 0.2s;
+        }
+        .name-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(169, 75, 210, 0.15);
+        }
+        .name-input::placeholder { color: var(--text-muted); }
+        .start-btn {
+            font-size: 15px;
+            font-weight: 500;
+            padding: 12px 24px;
+            margin-top: 8px;
+            border: none;
+            border-radius: var(--radius-md);
+            background: var(--accent);
+            color: white;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s ease;
+        }
+        .start-btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
+
+        .portal-hint {
+            margin-top: 20px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Portal top bar -->
+<header class="portal-topbar">
+    <div class="logo"><img src="ElevenLabs%20Fertility%20Clinic%20Logo.png" alt="ElevenLabs Fertility Clinic" class="logo-img" /></div>
+    <div class="topbar-widgets">
+        <nav>
+            <a href="#" class="active">Home</a>
+            <a href="#">Appointments</a>
+            <a href="#">Messages</a>
+            <a href="#">My Health</a>
+        </nav>
+    </div>
+</header>
+
+<!-- Welcome / Sign-in overlay -->
+<div id="welcome-screen" class="welcome-overlay">
+    <div class="welcome-card">
+        <h2>Welcome to the Patient Portal</h2>
+        <p class="subtitle">Enter your information so Eve can assist you personally.</p>
+        <div class="name-input-wrapper">
+            <input type="text" id="patient-name-input" class="name-input" placeholder="First name" autocomplete="given-name" />
+            <input type="email" id="patient-email-input" class="name-input" placeholder="Email address" autocomplete="email" />
+            <button id="start-btn" class="start-btn">Continue</button>
+        </div>
+    </div>
+</div>
+
+<!-- Main dashboard (hidden until signed in) -->
+<main id="main-content" class="portal-main" style="display: none;">
+    <div class="main-content">
+    <div class="dashboard-welcome">
+        <h1 class="greeting" id="personalized-greeting">Welcome back</h1>
+        <p class="date" id="welcome-date"></p>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="dashboard-card">
+            <h3>Upcoming Appointments</h3>
+            <br></br>
+            <p>No upcoming appointments scheduled.</p>
+            <br></br>
+            <p>Ask Eve to book an ultrasound, lab work, prenatal checkup, or doctor consultation.</p>
+        </div>
+        <div class="dashboard-card">
+            <h3>Office Information</h3>
+            <div class="office-info-grid">
+                <div class="office-details">
+                    <p><strong>Clinic</strong></p>
+                    <p id="office-name">—</p>
+                    <p><strong>Address</strong></p>
+                    <p id="office-address">—</p>
+                    <a id="office-map-link" class="office-map-link" href="#" target="_blank" rel="noopener">Get directions →</a>
+                    <p><strong>Phone</strong></p>
+                    <p id="office-phone">—</p>
+                </div>
+                <div class="office-map">
+                    <iframe id="office-map-iframe" title="Clinic location" src="https://www.openstreetmap.org/export/embed.html?bbox=-87.65%2C41.86%2C-87.60%2C41.90&layer=mapnik&marker=41.88%2C-87.63" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="section-title">What Eve Can Help You Schedule</h2>
+    <div class="services-grid">
+        <a class="service-tag" href="https://calendly.com/madisonmurphyn/first-trimester-ultrasound" target="_blank" rel="noopener">First trimester ultrasound</a>
+        <a class="service-tag" href="https://calendly.com/madisonmurphyn/anatomy-scan" target="_blank" rel="noopener">Anatomy scan (18–22 weeks)</a>
+        <a class="service-tag" href="https://calendly.com/madisonmurphyn/blood-work-lab-appointment" target="_blank" rel="noopener">Blood work & lab</a>
+        <a class="service-tag" href="https://calendly.com/madisonmurphyn/routine-prenatal-checkup" target="_blank" rel="noopener">Routine prenatal checkup</a>
+        <a class="service-tag" href="https://calendly.com/madisonmurphyn/consult-with-doctor" target="_blank" rel="noopener">Doctor consultation</a>
+    </div>
+
+    <h2 class="section-title">Care Resources</h2>
+    <div class="resources-list">
+        <div class="resource-item">
+            <strong>Prenatal vitamins</strong>
+            <span>Ask Eve about recommendations or when to start.</span>
+        </div>
+        <div class="resource-item">
+            <strong>Emergency contacts</strong>
+            <span>Your care team is available for urgent questions — ask Eve to leave a message.</span>
+        </div>
+        <div class="resource-item">
+            <strong>Preparation tips</strong>
+            <span>Eve can share what to expect at each appointment type.</span>
+        </div>
+    </div>
+
+    <div id="transcript-panel">
+        <h3>Conversation</h3>
+        <div id="transcript-log"></div>
+    </div>
+    </div>
+    <aside class="main-sidebar">
+        <img src="ElevenLabs Sidebar Image.png" alt="Stethoscope and ECG - healthcare illustration" />
+    </aside>
+</main>
+
+<!-- Link popup toast -->
+<div class="link-toast" id="link-toast">
+    <div class="toast-label">Booking Link</div>
+    <div class="toast-title" id="toast-title"></div>
+    <a id="toast-link" href="#" target="_blank" rel="noopener">Open Scheduling Page →</a>
+</div>
+
+<!-- =====================================================
+     ELEVENLABS WIDGET + CLIENT TOOLS
+     ===================================================== -->
+
+<!-- 1. Embed the ElevenLabs widget (hidden until name entered) -->
+<script src="config.js"></script>
+<elevenlabs-convai id="elevenlabs-widget" agent-id=""
+    avatar-orb-color-1="#B85A8A"
+    avatar-orb-color-2="#D49070"
+    action-text="Talk to Eve"
+    start-call-text="Start conversation"
+    end-call-text="End conversation"
+    listening-text="Eve is listening..."
+    speaking-text="Eve is speaking..."
+    markdown-link-allowed-hosts="calendly.com"
+    style="display: none;"
+></elevenlabs-convai>
+<script>
+document.getElementById('elevenlabs-widget').setAttribute('agent-id', window.ELEVENLABS_AGENT_ID);
+</script>
+
+<script
+    src="https://unpkg.com/@elevenlabs/convai-widget-embed"
+    async
+    type="text/javascript"
+></script>
+
+<!-- 2. Register client tools + welcome screen logic -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const widget = document.querySelector('elevenlabs-convai');
+    const transcriptPanel = document.getElementById('transcript-panel');
+    const transcriptLog = document.getElementById('transcript-log');
+    const linkToast = document.getElementById('link-toast');
+    const toastTitle = document.getElementById('toast-title');
+    const toastLink = document.getElementById('toast-link');
+
+    // Welcome screen elements
+    const welcomeScreen = document.getElementById('welcome-screen');
+    const mainContent = document.getElementById('main-content');
+    const scrollContent = mainContent && mainContent.querySelector('.main-content');
+
+    // Show scrollbar only when scrolling
+    let scrollbarTimeout;
+    let portalScrollTimeout;
+    if (scrollContent) {
+        scrollContent.addEventListener('scroll', () => {
+            scrollContent.classList.add('is-scrolling');
+            clearTimeout(scrollbarTimeout);
+            scrollbarTimeout = setTimeout(() => scrollContent.classList.remove('is-scrolling'), 800);
+        });
+    }
+    if (mainContent) {
+        mainContent.addEventListener('scroll', () => {
+            mainContent.classList.add('portal-scrolling');
+            clearTimeout(portalScrollTimeout);
+            portalScrollTimeout = setTimeout(() => mainContent.classList.remove('portal-scrolling'), 800);
+        });
+    }
+    const nameInput = document.getElementById('patient-name-input');
+    const emailInput = document.getElementById('patient-email-input');
+    const startBtn = document.getElementById('start-btn');
+
+    let toastTimeout;
+
+    // Handle name submission — pass dynamic variable to widget
+    function startExperience() {
+        const name = nameInput.value.trim() || 'there';
+        const firstName = name.split(/\s+/)[0] || name;
+        const displayName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+        const email = (emailInput?.value || '').trim();
+
+        if (widget) {
+            widget.setAttribute('dynamic-variables', JSON.stringify({
+                patient_name: name,
+                patient_email: email
+            }));
+            widget.style.display = '';
+        }
+
+        // Personalize main content
+        const greetingEl = document.getElementById('personalized-greeting');
+        const welcomeDate = document.getElementById('welcome-date');
+        if (displayName && displayName !== 'There') {
+            if (greetingEl) greetingEl.textContent = `Welcome back, ${displayName}`;
+        } else {
+            if (greetingEl) greetingEl.textContent = 'Welcome back';
+        }
+        if (welcomeDate) {
+            welcomeDate.textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+        }
+
+        welcomeScreen.classList.add('hidden');
+        mainContent.style.display = 'block';
+        document.body.classList.add('portal-active');
+    }
+
+    // Show a toast with the booking link + auto-open Calendly
+    function showBookingToast(title, url) {
+        toastTitle.textContent = title;
+        toastLink.href = url;
+        linkToast.classList.add('show');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+            linkToast.classList.remove('show');
+        }, 15000);
+
+        // Auto-open the Calendly scheduling page
+        window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
+    // Add a transcript entry
+    function addTranscript(role, text) {
+        transcriptPanel.classList.add('visible');
+        const entry = document.createElement('div');
+        entry.className = 'transcript-entry';
+        entry.innerHTML = `
+            <div class="role ${role}">${role === 'user' ? 'You' : 'Eve'}</div>
+            <div class="text">${text}</div>
+        `;
+        transcriptLog.appendChild(entry);
+        entry.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    startBtn.addEventListener('click', startExperience);
+    nameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') startExperience();
+    });
+
+    // Populate office info from config
+    const officeName = document.getElementById('office-name');
+    const officeAddress = document.getElementById('office-address');
+    const officePhone = document.getElementById('office-phone');
+    if (officeName && window.CLINIC_NAME) officeName.textContent = window.CLINIC_NAME;
+    if (officeAddress && window.CLINIC_ADDRESS) officeAddress.textContent = window.CLINIC_ADDRESS;
+    if (officePhone && window.CLINIC_PHONE) officePhone.textContent = window.CLINIC_PHONE;
+
+    const mapLink = document.getElementById('office-map-link');
+    if (mapLink && window.CLINIC_ADDRESS) {
+        mapLink.href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(window.CLINIC_ADDRESS);
+    }
+
+    if (widget) {
+        // Register client tools on the call event
+        widget.addEventListener('elevenlabs-convai:call', (event) => {
+
+            // ─── HELPERS (defined after syncCurrentCallToHistory exists) ──
+            const getOrCreateCurrentCall = () => {
+                let current = JSON.parse(localStorage.getItem('eve_current_call') || '{}');
+                if (!current.id) {
+                    const patientName = nameInput ? nameInput.value.trim() || 'Unknown' : 'Unknown';
+                    current = {
+                        id: Date.now().toString(),
+                        patient_name: patientName,
+                        start_time: new Date().toISOString(),
+                        status: 'active',
+                        appointments_scheduled: [],
+                        staff_messages: [],
+                        transcript: []
+                    };
+                }
+                return current;
+            };
+
+            const updateCallAndSync = (updater) => {
+                const current = getOrCreateCurrentCall();
+                updater(current);
+                localStorage.setItem('eve_current_call', JSON.stringify(current));
+                syncCurrentCallToHistory();
+            };
+
+            // ─── CLIENT TOOLS ───────────────────────────────
+            event.detail.config.clientTools = {
+
+                schedule_first_trimester_ultrasound: async (params) => {
+                    const url = "https://calendly.com/madisonmurphyn/first-trimester-ultrasound";
+                    showBookingToast("First Trimester Ultrasound", url);
+                    updateCallAndSync(c => {
+                        if (!c.appointments_scheduled) c.appointments_scheduled = [];
+                        c.appointments_scheduled.push({ type: 'First Trimester Ultrasound', time: new Date().toISOString() });
+                    });
+                    return "I've pulled up the scheduling link for the first trimester ultrasound. This is a 30-minute appointment. Please bring your insurance card and photo ID. Try to arrive about 15 minutes early to complete paperwork. You'll get an email confirmation right after you book. This is going to be such a special moment — you'll see your baby and hear the heartbeat for the first time!";
+                },
+
+                schedule_anatomy_scan: async (params) => {
+                    const url = "https://calendly.com/madisonmurphyn/anatomy-scan";
+                    showBookingToast("Anatomy Scan", url);
+                    updateCallAndSync(c => {
+                        if (!c.appointments_scheduled) c.appointments_scheduled = [];
+                        c.appointments_scheduled.push({ type: 'Anatomy Scan', time: new Date().toISOString() });
+                    });
+                    return "I've pulled up the scheduling link for your anatomy scan — it's now showing on your screen. This scan is typically done between 18 and 22 weeks and takes about 45 to 60 minutes. Wear comfortable two-piece clothing for easy access. Your partner or support person is absolutely welcome — many families treasure this appointment. You'll get a detailed look at how your baby is developing!";
+                },
+
+                schedule_blood_work: async (params) => {
+                    const url = "https://calendly.com/madisonmurphyn/blood-work-lab-appointment";
+                    showBookingToast("Blood Work / Lab", url);
+                    updateCallAndSync(c => {
+                        if (!c.appointments_scheduled) c.appointments_scheduled = [];
+                        c.appointments_scheduled.push({ type: 'Blood Work / Lab', time: new Date().toISOString() });
+                    });
+                    return "I've pulled up the scheduling link for your blood work appointment — it's now showing on your screen. This appointment is about 15 to 20 minutes. If fasting is required, make sure to fast for 8 to 12 hours beforehand. Stay well hydrated and bring your insurance card. The lab team is very gentle and experienced, so you'll be in great hands!";
+                },
+
+                schedule_prenatal_checkup: async (params) => {
+                    const url = "https://calendly.com/madisonmurphyn/routine-prenatal-checkup";
+                    showBookingToast("Routine Prenatal Checkup", url);
+                    updateCallAndSync(c => {
+                        if (!c.appointments_scheduled) c.appointments_scheduled = [];
+                        c.appointments_scheduled.push({ type: 'Routine Prenatal Checkup', time: new Date().toISOString() });
+                    });
+                    return "I've pulled up the scheduling link for your routine prenatal checkup — it's now showing on your screen. This is a 30-minute visit. Jot down any questions or symptoms you want to discuss beforehand. Bring your insurance card and plan to arrive about 10 minutes early. These regular checkups are so important for keeping everything on track!";
+                },
+
+                schedule_doctor_consult: async (params) => {
+                    const url = "https://calendly.com/madisonmurphyn/consult-with-doctor";
+                    showBookingToast("Consult with Doctor", url);
+                    updateCallAndSync(c => {
+                        if (!c.appointments_scheduled) c.appointments_scheduled = [];
+                        c.appointments_scheduled.push({ type: 'Doctor Consultation', time: new Date().toISOString() });
+                    });
+                    return "I've pulled up the scheduling link for your doctor consultation — it's now showing on your screen. This is a 30-minute appointment. Write down all your questions ahead of time so you can make the most of the visit. No special preparation is needed — this is your time to get answers and feel supported.";
+                },
+
+                leave_message_for_staff: async (params) => {
+                    const message = params.message || 'No message provided';
+                    updateCallAndSync(c => {
+                        if (!c.staff_messages) c.staff_messages = [];
+                        c.staff_messages.push({ message, time: new Date().toISOString() });
+                    });
+                    return "I've noted that message for the medical staff. They'll see it in the system right away. Is there anything else you'd like me to pass along?";
+                }
+            };
+
+            // ─── CALL END: finalize when connection disconnects ───
+            if (event.detail.config) {
+                const origOnDisconnect = event.detail.config.onDisconnect;
+                event.detail.config.onDisconnect = () => {
+                    if (origOnDisconnect) origOnDisconnect();
+                    finalizeCurrentCall();
+                    if (syncInterval) {
+                        clearInterval(syncInterval);
+                        syncInterval = null;
+                    }
+                };
+            }
+
+            // ─── TRANSCRIPT LOGGING ───────────────────────
+            if (event.detail.config) {
+                const origOnMessage = event.detail.config.onMessage;
+                event.detail.config.onMessage = (message) => {
+                    if (origOnMessage) origOnMessage(message);
+                    // Support both voice and text: message.message, message.text, or message.content
+                    const text = message.message || message.text || message.content;
+                    const skipTentative = message.isTentative === true;
+                    if (message.source && text && !skipTentative) {
+                        const role = message.source === 'user' ? 'user' : 'agent';
+                        addTranscript(role, text);
+
+                        // Log transcript to current call record
+                        const current = getOrCreateCurrentCall();
+                        if (!current.transcript) current.transcript = [];
+                        current.transcript.push({ role, text, time: new Date().toISOString() });
+                        localStorage.setItem('eve_current_call', JSON.stringify(current));
+                        syncCurrentCallToHistory();
+                    }
+                };
+            }
+        });
+
+        // ─── CALL LIFECYCLE LOGGING ───────────────────
+        let syncInterval = null;
+
+        const callHasContent = (c) => {
+            const hasTranscript = c.transcript && c.transcript.length > 0;
+            const hasAppointments = c.appointments_scheduled && c.appointments_scheduled.length > 0;
+            const hasStaffMessages = c.staff_messages && c.staff_messages.length > 0;
+            /* Require meaningful content - duration alone creates phantom "short" first calls */
+            return hasTranscript || hasAppointments || hasStaffMessages;
+        };
+
+        // Finalize any leftover call from a previous session
+        function finalizeCurrentCall() {
+            const current = JSON.parse(localStorage.getItem('eve_current_call') || '{}');
+            if (current.id) {
+                current.status = 'completed';
+                current.end_time = new Date().toISOString();
+                const start = new Date(current.start_time);
+                current.duration_seconds = Math.round((new Date(current.end_time) - start) / 1000);
+
+                // Only add to history if call has actual content (skip phantom/empty calls)
+                if (callHasContent(current)) {
+                    const history = JSON.parse(localStorage.getItem('eve_call_history') || '[]');
+                    const existingIndex = history.findIndex(c => c.id === current.id);
+                    if (existingIndex >= 0) {
+                        history[existingIndex] = current;
+                    } else {
+                        history.unshift(current);
+                    }
+                    localStorage.setItem('eve_call_history', JSON.stringify(history));
+                    try { new BroadcastChannel('eve-dashboard').postMessage('update'); } catch (_) {}
+                }
+                localStorage.removeItem('eve_current_call');
+            }
+        }
+
+        // Finalize any stale call on page load
+        finalizeCurrentCall();
+
+        // Sync current call to history array (live updates)
+        function syncCurrentCallToHistory() {
+            const current = JSON.parse(localStorage.getItem('eve_current_call') || '{}');
+            if (!current.id) return;
+
+            const start = new Date(current.start_time);
+            current.duration_seconds = Math.round((new Date() - start) / 1000);
+
+            // Only add to history if call has actual content (skip phantom/empty calls)
+            if (!callHasContent(current)) return;
+
+            const history = JSON.parse(localStorage.getItem('eve_call_history') || '[]');
+            const existingIndex = history.findIndex(c => c.id === current.id);
+            if (existingIndex >= 0) {
+                history[existingIndex] = current;
+            } else {
+                history.unshift(current);
+            }
+            localStorage.setItem('eve_call_history', JSON.stringify(history));
+            try { new BroadcastChannel('eve-dashboard').postMessage('update'); } catch (_) {}
+        }
+
+        // When a call starts, finalize any previous call, then create new record
+        widget.addEventListener('elevenlabs-convai:call', () => {
+            finalizeCurrentCall();
+
+            const patientName = nameInput ? nameInput.value.trim() || 'Unknown' : 'Unknown';
+            const callRecord = {
+                id: Date.now().toString(),
+                patient_name: patientName,
+                start_time: new Date().toISOString(),
+                status: 'active',
+                appointments_scheduled: [],
+                transcript: []
+            };
+            localStorage.setItem('eve_current_call', JSON.stringify(callRecord));
+            syncCurrentCallToHistory();
+
+            // Start live sync
+            if (syncInterval) clearInterval(syncInterval);
+            syncInterval = setInterval(() => {
+                syncCurrentCallToHistory();
+                // Check if call has ended by looking at widget text content
+                const widgetText = widget.shadowRoot
+                    ? widget.shadowRoot.textContent.toLowerCase()
+                    : widget.textContent.toLowerCase();
+                const hasActiveIndicator = widgetText.includes('listening') ||
+                    widgetText.includes('speaking') ||
+                    widgetText.includes('connecting');
+                const current = JSON.parse(localStorage.getItem('eve_current_call') || '{}');
+
+                // If call has been active for at least 10 seconds and widget
+                // no longer shows active state, finalize
+                if (current.id) {
+                    const callAge = (new Date() - new Date(current.start_time)) / 1000;
+                    if (callAge > 10 && !hasActiveIndicator) {
+                        finalizeCurrentCall();
+                        clearInterval(syncInterval);
+                        syncInterval = null;
+                    }
+                }
+            }, 2000);
+        });
+
+        // Finalize call when user leaves/refreshes page
+        window.addEventListener('beforeunload', finalizeCurrentCall);
+    }
+});
+</script>
+
+</body>
+</html>

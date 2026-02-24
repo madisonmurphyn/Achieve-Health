@@ -1,0 +1,15 @@
+# Environment and generated config (contains secrets)
+.env
+config.js
+
+# Dependencies
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+*~
