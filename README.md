@@ -2,6 +2,8 @@
 
 A patient portal for fertility clinics, powered by the [ElevenLabs Conversational AI](https://elevenlabs.io) widget. Patients can talk to Eve (the AI assistant) to schedule appointments, ask questions, and leave messages for staff.
 
+**[📹 Project overview video](public/assets/videos/project-overview.mp4)** — Walkthrough of the project and features.
+
 ## Features
 
 - **Patient portal** (`public/index.html`) – Welcome screen, dashboard, and Eve voice assistant
@@ -66,9 +68,11 @@ Eve/
 │   ├── dashboard.html      # Clinic staff dashboard
 │   ├── config.js           # Generated from .env (do not commit)
 │   └── assets/
-│       └── images/         # Logo, sidebar, etc.
-│           ├── logo.png
-│           └── sidebar.png
+│       ├── images/         # Logo, sidebar, etc.
+│       │   ├── logo.png
+│       │   └── sidebar.png
+│       └── videos/         # Project overview and other media
+│           └── project-overview.mp4
 ├── scripts/
 │   └── inject-config.js    # Build: .env → public/config.js
 ├── .env.example            # Template for .env
