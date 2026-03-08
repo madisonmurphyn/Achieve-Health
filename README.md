@@ -2,7 +2,7 @@
 
 A patient portal for fertility clinics, powered by the [ElevenLabs Conversational AI](https://elevenlabs.io) widget. Patients can talk to Eve (the AI assistant) to schedule appointments, ask questions, and leave messages for staff.
 
-**[📹 Project overview video](public/assets/videos/project-overview.mp4)** — Walkthrough of the project and features.
+**📹 Project overview video:** https://vimeo.com/1171410070 — Walkthrough of the project and features.
 
 ## Features
 
